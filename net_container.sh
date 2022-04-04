@@ -1,9 +1,10 @@
-#!/bin/bash
+#!/bin/bash -i
 
 ## Script creates a new net namespace and moves specified interface there
 
 ns_name='ns1'
 if_name="$1"
+DNS='1.1.1.1' # you preferred dns 
 user=`whoami`
 
 if [ "$user" != "root" ]; then
@@ -21,9 +22,9 @@ fi
 
 ns_old=`ip netns list | grep -o $ns_name`
 
-# Delete nerwork namespace if already exists
+# Delete network namespace if already exists
 if [ "$ns_old" ]; then
-	echo "Namespace '$ns_name' already exists. Trying to delet it ..."
+	echo "Namespace '$ns_name' already exists. Trying to delete it ..."
 	ip netns del $ns_name
 	if [ ! $? -eq 0 ]; then echo "Error: can't delete existing namespace '$ns_old'!"; exit 1; fi
 	sleep 2
@@ -54,17 +55,17 @@ ip -n $ns_name route add default via $router_ip
 
 # Set DNS
 mkdir -p /etc/netns/$ns_name
-echo "nameserver 1.1.1.1" > /etc/netns/$ns_name/resolv.conf 2>/dev/null
+echo "nameserver $DNS" > /etc/netns/$ns_name/resolv.conf 2>/dev/null
+
 
 set +x
 # Execute program (i.e. bash) in new namespace $ns_name as user $user
-echo -n "Starting shell in namespace '$ns_name'. "
 ip=`ip netns exec $ns_name curl -s -4 ifconfig.me`
-echo "IP in this shell = $ip"
-ip netns exec $ns_name su - $user
+ip netns exec $ns_name sudo -u $user PS1="($ip) $PS1" bash --norc
+# ip netns exec $ns_name su - $user  # prompt will not change
 
 set -x
-# Delet namespace
+# Delete namespace
 ip netns del $ns_name
 
 exit 0
