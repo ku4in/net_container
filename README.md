@@ -11,6 +11,6 @@ After starting a new shell you can simply run any programs there ,e.g. execute '
 Make sure browser is not already running.
 Otherwise it will just open a new window instead of be newborn.
 
-If you have Wireguard VPN, then you can use ***wg_container.sh*** to start new shell in isolated network namespace environment. All traffic in this shell will go through Wireguard server.
+If you have Wireguard VPN, then you can use ***wg_container.sh*** to start new shell in isolated network namespace. All traffic in this shell will go through Wireguard server.
 
 Probably, you may want combine two scripts, e.g. first use ***net_container.sh*** to pass your traffic through particular interface and then execute ***wg_container.sh*** in a shell created by ***net_container.sh***. As a result you will have shell with traffic goes through chosen interface to Wireguard server.
